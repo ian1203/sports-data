@@ -85,11 +85,11 @@ def scrape_goalkeeper_data(player_link):
             amount_penalties_saved = penalties_saved.split()[2] 
             print("Amount of penalties saved:", amount_penalties_saved)
             
-            saves_per_game = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[2]").text
+            saves_per_game = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[3]").text
             amount_saves_per_game = saves_per_game.split()[3] 
             print("Amount of saves per game:", amount_saves_per_game)
             
-            saves_per_game_percentage = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[2]").text
+            saves_per_game_percentage = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[3]").text
             amount_saves_per_game_percentage = saves_per_game_percentage.split()[4] 
             print("Percentage of saves per game:", amount_saves_per_game_percentage)
             
