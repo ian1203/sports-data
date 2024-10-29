@@ -1,0 +1,289 @@
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.alert import Alert
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
+import time
+
+
+chrome_options = Options()
+chrome_options.add_argument("--start-maximized")
+service = Service("/Users/ianvicente/downloads/chromedriver-mac-x64/chromedriver")
+driver = webdriver.Chrome(service=service, options=chrome_options)
+
+team_url = "https://www.sofascore.com/en-us/team/soccer/real-madrid/2829"
+
+
+def cerrar_popup(driver):
+    try:
+        close_button = driver.find_element(By.XPATH, '//*[@id="portals"]/div/div/div/div/div/div[1]/div/div[5]/button[1]')
+        driver.execute_script("arguments[0].scrollIntoView();", close_button)
+        
+        close_button.click()
+        print("Popup cerrado exitosamente")
+        
+        WebDriverWait(driver, 10).until(EC.invisibility_of_element_located((By.XPATH, '//*[@id="portals"]/div/div/div/div/div/div[1]/div/div[5]/button[1]')))
+        print("Popup desapareció correctamente")
+    except NoSuchElementException:
+        print("No se encontró ningún popup")
+    except TimeoutException:
+        print("El popup no desapareció a tiempo")
+        
+def switch_to_list_view(team_url):
+    driver.get(team_url)
+
+    try:
+        list_view_button = WebDriverWait(driver, 30).until(
+            EC.element_to_be_clickable((By.XPATH, '//*[@id="__next"]/main/div[2]/div/div[2]/div[1]/div[5]/div[1]/div[2]/label[2]/div'))
+        )
+        list_view_button.click() 
+
+    except Exception as e:
+        print(f"Error al cambiar a 'List View': {e}")
+
+def scrape_goalkeeper_data(player_link):
+    driver.get(player_link)
+    
+    try:
+        cerrar_popup(driver)
+    
+        try:
+            dropdown_button = WebDriverWait(driver, 30).until(
+                EC.element_to_be_clickable((By.XPATH, "//div[@class='Box Flex ggRYVx qjBwj']//div[1]//button[1]"))
+            )
+        
+            current_competition = driver.find_element(By.XPATH, "//div[@class='Box Flex ggRYVx qjBwj']//div[1]//button[1]").text
+            if "LaLiga" not in current_competition:
+                dropdown_button.click()
+                la_liga_option = WebDriverWait(driver, 30).until(
+                    EC.element_to_be_clickable((By.XPATH, "//bdi[@class='Text jFxLbA'][normalize-space()='LaLiga']"))
+                )
+                la_liga_option.click()
+                time.sleep(5)
+
+            player_name = driver.find_element(By.XPATH, "//h2[@class='Text cuNqBu']").text
+            print("Player's name:", player_name)
+
+            games = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[4]//div[1]//div[2]//div[1]").text
+            amount_games = games.split()[2] 
+            print("Amount of games played:", amount_games)
+
+            minutes_played = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[4]//div[1]//div[2]//div[4]").text
+            amount_minutes_played = minutes_played.split()[3] 
+            print("Amount of minutes played:", amount_minutes_played)
+            
+            goals_conceded_per_game = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[1]").text
+            amount_goals_conceded_per_game = goals_conceded_per_game.split()[4] 
+            print("Amount of goals conceded per game:", amount_goals_conceded_per_game)
+            
+            penalties_saved = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[2]").text
+            amount_penalties_saved = penalties_saved.split()[2] 
+            print("Amount of penalties saved:", amount_penalties_saved)
+            
+            saves_per_game = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[2]").text
+            amount_saves_per_game = saves_per_game.split()[3] 
+            print("Amount of saves per game:", amount_saves_per_game)
+            
+            saves_per_game_percentage = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[2]").text
+            amount_saves_per_game_percentage = saves_per_game_percentage.split()[4] 
+            print("Percentage of saves per game:", amount_saves_per_game_percentage)
+            
+            goals_conceded = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[5]").text
+            amount_saves_per_game_percentage = saves_per_game_percentage.split()[2] 
+            print("Amount of total goals conceded:", amount_saves_per_game_percentage)
+            
+            total_saves = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[8]").text
+            amount_total_saves = total_saves.split()[1] 
+            print("Amount of total saves:", amount_total_saves)
+            
+            goals_prevented = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[8]").text
+            amount_goals_prevented = goals_prevented.split()[2] 
+            print("Amount of goals prevented:", amount_goals_prevented)
+            
+            passes_completed = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[7]//div[1]//div[2]//div[6]").text
+            amount_passes_completed = passes_completed.split()[3] 
+            print("Amount of passes completed:", amount_passes_completed)
+            
+            passes_completed_percentage = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[7]//div[1]//div[2]//div[6]").text
+            amount_passes_completed_percentage = passes_completed_percentage.split()[4] 
+            print("Percentage of passes completed:", amount_passes_completed_percentage)
+            
+            clean_sheets = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[8]//div[1]//div[2]//div[1]").text
+            amount_clean_sheets = clean_sheets.split()[2] 
+            print("Amount of clean sheets:", amount_clean_sheets)
+            
+            error_leading_to_shot = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[7]//div[1]//div[2]//div[8]").text
+            amount_error_leading_to_shot = error_leading_to_shot.split()[4] 
+            print("Amount of erros leading to shot:", amount_error_leading_to_shot)
+            
+            error_leading_to_goal = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[7]//div[1]//div[2]//div[8]").text
+            amount_error_leading_to_goal = error_leading_to_goal.split()[4] 
+            print("Amount of errors leading to goal:", amount_error_leading_to_goal)
+        except Exception as e:
+            print(f"Error al extraer datos del jugador: {e}")
+    except TimeoutException:
+        print("Error: el elemento no estuvo disponible a tiempo")
+    except Exception as e:
+        print(f"Error al extraer datos del jugador: {e}")
+           
+            
+
+def scrape_general_player_data(player_link):
+    driver.get(player_link)
+    
+    try:
+        cerrar_popup(driver)
+    
+        try:
+            dropdown_button = WebDriverWait(driver, 30).until(
+                EC.element_to_be_clickable((By.XPATH, "//div[@class='Box Flex ggRYVx qjBwj']//div[1]//button[1]"))
+            )
+        
+            current_competition = driver.find_element(By.XPATH, "//div[@class='Box Flex ggRYVx qjBwj']//div[1]//button[1]").text
+            if "LaLiga" not in current_competition:
+                dropdown_button.click()
+                la_liga_option = WebDriverWait(driver, 30).until(
+                    EC.element_to_be_clickable((By.XPATH, "//bdi[@class='Text jFxLbA'][normalize-space()='LaLiga']"))
+                )
+                la_liga_option.click()
+                time.sleep(5)
+
+            player_name = driver.find_element(By.XPATH, "//h2[@class='Text cuNqBu']").text
+            print("Player's name:", player_name)
+
+            games = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[4]//div[1]//div[2]//div[1]").text
+            amount_games = games.split()[2] 
+            print("Amount of games played:", amount_games)
+
+            minutes_played = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[4]//div[1]//div[2]//div[4]").text
+            amount_minutes_played = minutes_played.split()[3] 
+            print("Amount of minutes played:", amount_minutes_played)
+
+            goals = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[1]").text
+            amount_goals = goals.split()[1] 
+            print("Amount of goals:", amount_goals)
+
+            xG = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[2]").text
+            amount_xG = xG.split()[3]
+            print("Amount of xG:", amount_xG)
+
+            shots_per_game = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[5]").text
+            amount_shots_per_game = shots_per_game.split()[3]
+            print("Amount of shots per game:", amount_shots_per_game)
+
+            shots_target_per_game = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[6]").text
+            amount_shots_target_per_game = shots_target_per_game.split()[5]
+            print("Amount of shots on target per game:", amount_shots_target_per_game)
+
+            assists = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[6]//div[1]//div[2]//div[1]").text
+            amount_assists = assists.split()[1]
+            print("Amount of assists:", amount_assists)
+
+            xA = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[6]//div[1]//div[2]//div[2]").text
+            amount_xA = xA.split()[3]
+            print("Amount of xA:", amount_xA)
+
+            big_chances_created = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[6]//div[1]//div[2]//div[4]").text
+            amount_big_chances_created = big_chances_created.split()[3]
+            print("Amount of big chances created:", amount_big_chances_created)
+
+            key_passes_per_game = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[6]//div[1]//div[2]//div[5]").text
+            amount_key_passes_per_game = key_passes_per_game.split()[2]
+            print("Amount of key passes per game:", amount_key_passes_per_game)
+
+            passes_completed_per_game = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[6]//div[1]//div[2]//div[6]").text
+            amount_passes_completed_per_game = passes_completed_per_game.split()[3]
+            print("Amount of passes completed per game:", amount_passes_completed_per_game)
+
+            passes_completed_per_game_percentage = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[6]//div[1]//div[2]//div[6]").text
+            amount_passes_completed_per_game_percentage = passes_completed_per_game_percentage.split()[4]
+            print("Pass completion percentage:", amount_passes_completed_per_game_percentage)
+
+            succesful_dribles = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[8]//div[1]//div[2]//div[1]").text
+            amount_succesful_dribles = succesful_dribles.split()[2]
+            print("Succesful dribles per game:", amount_succesful_dribles)
+
+            total_duels_won_per_game = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[8]//div[1]//div[2]//div[2]").text
+            amount_total_duels_won_per_game = total_duels_won_per_game.split()[3]
+            print("Total duels won per game:", amount_total_duels_won_per_game)
+
+            total_duels_won_percentage = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[8]//div[1]//div[2]//div[2]").text
+            amount_total_duels_won_percentage = total_duels_won_percentage.split()[4]
+            print("Percentage of total duels won per game:", amount_total_duels_won_percentage)
+
+            ground_duels_won_per_game = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[8]//div[1]//div[2]//div[3]").text
+            amount_ground_duels_won_per_game = ground_duels_won_per_game.split()[3]
+            print("Ground duels won per game:", amount_ground_duels_won_per_game)
+
+            ground_duels_won_per_game_percentage = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[8]//div[1]//div[2]//div[3]").text
+            amount_ground_duels_won_per_game_percentage = ground_duels_won_per_game_percentage.split()[4]
+            print("Percentage of ground duels won per game:", amount_ground_duels_won_per_game_percentage)
+
+            aerial_duels_won_per_game = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[8]//div[1]//div[2]//div[4]").text
+            amount_aerial_duels_won_per_game = aerial_duels_won_per_game.split()[3]
+            print("Aerial duels won per game:", amount_aerial_duels_won_per_game)
+
+            aerial_duels_won_per_game_percentage = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[8]//div[1]//div[2]//div[4]").text
+            amount_aerial_duels_won_per_game_percentage = aerial_duels_won_per_game_percentage.split()[4]
+            print("Percentage of aerial duels won per game:", amount_aerial_duels_won_per_game_percentage)
+
+            possession_lost_per_game = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[8]//div[1]//div[2]//div[5]").text
+            amount_possession_lost_per_game = possession_lost_per_game.split()[2]
+            print("Possession lost per game:", amount_possession_lost_per_game)
+
+            fouls_received_per_game = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[8]//div[1]//div[2]//div[7]").text
+            amount_fouls_received_per_game = fouls_received_per_game.split()[2]
+            print("Fouls received per game:", amount_fouls_received_per_game)
+
+            offside_per_game = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[8]//div[1]//div[2]//div[8]").text
+            amount_offside_per_game = offside_per_game.split()[1]
+            print("Offsides per game:", amount_offside_per_game)
+
+        except Exception as e:
+            print(f"Error al extraer datos del jugador: {e}")
+    except TimeoutException:
+        print("Error: el elemento no estuvo disponible a tiempo")
+    except Exception as e:
+        print(f"Error al extraer datos del jugador: {e}")
+
+def scrape_players_data():
+    wait = WebDriverWait(driver, 30)
+    try:
+        table_xpath = "//table[contains(@class, 'fEUhaC')]"
+        table = wait.until(EC.presence_of_element_located((By.XPATH, table_xpath)))
+
+        rows = driver.find_elements(By.XPATH, "//table[contains(@class, 'fEUhaC')]//tr[@class='TableRow ygnhC']")
+
+        players = []
+        for row in rows:
+            try:
+                player_link = row.find_element(By.XPATH, ".//td[1]//a").get_attribute("href")
+                position = row.find_element(By.XPATH, ".//td[2]").text
+                age = row.find_element(By.XPATH, ".//td[3]").text
+
+                players.append({
+                    'link': player_link,
+                    'position': position,
+                    'age': age
+                })
+            except Exception as e:
+                print(f"Error al extraer datos de la fila: {e}")
+
+        for player in players:
+            if player['position'].lower() == "goalkeeper":
+                scrape_goalkeeper_data(player['link'])
+            else:
+                scrape_general_player_data(player['link'])
+    
+    except Exception as e:
+        print(f"Error al obtener la tabla: {e}")
+
+switch_to_list_view(team_url)
+scrape_players_data()
+
+driver.quit()
