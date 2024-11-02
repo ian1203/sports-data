@@ -126,7 +126,7 @@ def scrape_goalkeeper_data(player_link):
             print("Amount of total goals conceded:", amount_goals_conceded)
             
             total_saves = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[8]").text
-            amount_total_saves = total_saves.split()[1] 
+            amount_total_saves = total_saves.split()[2] 
             print("Amount of total saves:", amount_total_saves)
             
             goals_prevented = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[8]").text
@@ -195,18 +195,23 @@ def scrape_general_player_data(player_link):
             goals = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[1]").text
             amount_goals = goals.split()[1] 
             print("Amount of goals:", amount_goals)
+            
+            
+            
+            xG_element = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[2]")
+            if "Expected Goals (xG)" in xG_element.text:
+                amount_xG = xG_element.text.split()[3]
+                print("Amount of xG:", amount_xG)
 
-            xG = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[2]").text
-            amount_xG = xG.split()[3]
-            print("Amount of xG:", amount_xG)
+                shots_per_game = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[5]").text
+                amount_shots_per_game = shots_per_game.split()[3]
+                print("Amount of shots per game:", amount_shots_per_game)
 
-            shots_per_game = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[5]").text
-            amount_shots_per_game = shots_per_game.split()[3]
-            print("Amount of shots per game:", amount_shots_per_game)
+                shots_target_per_game = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[6]").text
+                amount_shots_target_per_game = shots_target_per_game.split()[5]
+                print("Amount of shots on target per game:", amount_shots_target_per_game)
 
-            shots_target_per_game = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[6]").text
-            amount_shots_target_per_game = shots_target_per_game.split()[5]
-            print("Amount of shots on target per game:", amount_shots_target_per_game)
+            
 
             assists = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[6]//div[1]//div[2]//div[1]").text
             amount_assists = assists.split()[1]
@@ -270,7 +275,6 @@ def scrape_general_player_data(player_link):
 
             offside_per_game = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[8]//div[1]//div[2]//div[8]").text
             amount_offside_per_game = offside_per_game.split()[1]
-            print("Offsides per game:", amount_offside_per_game)
 
         except Exception as e:
             print(f"Error al extraer datos del jugador: {e}")
