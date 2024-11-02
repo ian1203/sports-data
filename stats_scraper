@@ -275,6 +275,8 @@ def scrape_general_player_data(player_link):
 
             offside_per_game = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[8]//div[1]//div[2]//div[8]").text
             amount_offside_per_game = offside_per_game.split()[1]
+            print("Offsides per game:", amount_offside_per_game)
+
 
         except Exception as e:
             print(f"Error al extraer datos del jugador: {e}")
