@@ -16,14 +16,13 @@ chrome_options.add_argument("--start-maximized")
 service = Service("/Users/ianvicente/downloads/chromedriver-mac-x64/chromedriver")
 driver = webdriver.Chrome(service=service, options=chrome_options)
 
-team_url = "https://www.sofascore.com/en-us/team/soccer/real-madrid/2829"
+league_url = "https://www.sofascore.com/en-us/tournament/soccer/spain/laliga/8#id:61643"
 
 
 def cerrar_popup(driver):
     try:
         close_button = driver.find_element(By.XPATH, '//*[@id="portals"]/div/div/div/div/div/div[1]/div/div[5]/button[1]')
         driver.execute_script("arguments[0].scrollIntoView();", close_button)
-        
         close_button.click()
         print("Popup cerrado exitosamente")
         
@@ -45,6 +44,35 @@ def switch_to_list_view(team_url):
 
     except Exception as e:
         print(f"Error al cambiar a 'List View': {e}")
+        
+        
+
+def get_teams():
+    driver.get(league_url)
+    try:
+        cerrar_popup(driver)  
+        teams = []
+        try:
+            standings_element = WebDriverWait(driver, 30).until(
+                EC.presence_of_element_located(
+                    (By.XPATH, '//*[@id="__next"]/main/div/div[3]/div/div[1]/div[1]/div[2]/div/div[1]/div/div[2]')
+                )
+            )
+            rows = standings_element.find_elements(By.XPATH, ".//a[@data-testid='standings_row']")
+            for row in rows:
+                team_name = row.find_element(By.CLASS_NAME, "Text.fsoviT").text
+                team_url = row.get_attribute('href')
+                teams.append({'name': team_name, 'url': team_url})
+        except Exception as e:
+            print(f"Error al obtener los equipos: {e}")
+        return teams
+    except TimeoutException:
+        print("Error: el elemento no estuvo disponible a tiempo")
+    except Exception as e:
+        print(f"Error al extraer datos del jugador: {e}")
+
+
+
 
 def scrape_goalkeeper_data(player_link):
     driver.get(player_link)
@@ -85,17 +113,17 @@ def scrape_goalkeeper_data(player_link):
             amount_penalties_saved = penalties_saved.split()[2] 
             print("Amount of penalties saved:", amount_penalties_saved)
             
-            saves_per_game = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[3]").text
+            saves_per_game = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[2]").text
             amount_saves_per_game = saves_per_game.split()[3] 
             print("Amount of saves per game:", amount_saves_per_game)
             
-            saves_per_game_percentage = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[3]").text
+            saves_per_game_percentage = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[2]").text
             amount_saves_per_game_percentage = saves_per_game_percentage.split()[4] 
             print("Percentage of saves per game:", amount_saves_per_game_percentage)
             
             goals_conceded = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[5]").text
-            amount_saves_per_game_percentage = saves_per_game_percentage.split()[2] 
-            print("Amount of total goals conceded:", amount_saves_per_game_percentage)
+            amount_goals_conceded = goals_conceded.split()[2] 
+            print("Amount of total goals conceded:", amount_goals_conceded)
             
             total_saves = driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[8]").text
             amount_total_saves = total_saves.split()[1] 
@@ -283,7 +311,20 @@ def scrape_players_data():
     except Exception as e:
         print(f"Error al obtener la tabla: {e}")
 
-switch_to_list_view(team_url)
-scrape_players_data()
+def main():
+    teams = get_teams()
+    for team in teams:
+        print(f"Scrapeando jugadores de: {team['name']}")
+        driver.get(team['url'])  
+        cerrar_popup(driver) 
 
-driver.quit()
+        try:
+            switch_to_list_view(team['url'])
+        except Exception as e:
+            print(f"Error al cambiar a 'List View': {e}")
+            cerrar_popup(driver) 
+        scrape_players_data()
+
+    driver.quit()
+if __name__ == "__main__":
+    main()
