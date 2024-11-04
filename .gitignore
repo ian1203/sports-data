@@ -1,3 +1,9 @@
 
 /venv/bin
 /venv
+.DS_Store
+/__pycache__
+*.chromedriver
+*.zip
+*.json
+/.wdm
