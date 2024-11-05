@@ -2,6 +2,7 @@ from browser_manager import BrowserManager
 from popup_handler import PopupHandler
 from sofascore_scrapper import SofaScoreScraper
 from player_scrapper import PlayerScraper
+from data_manager import create_dataframe
 
 def main():
     """
@@ -29,7 +30,8 @@ def main():
     player_scraper = PlayerScraper(driver, popup_handler)
     
     teams = sofascore_scraper.get_teams()
-    for team in teams:
+    for i, team in enumerate(teams):            
+        team_name = team['name']
         print(f"Scraping players from: {team['name']}")
         driver.get(team['url'])
         popup_handler.cerrar_popup()
@@ -40,7 +42,23 @@ def main():
             print(f"Error switching to list view: {e}")
             popup_handler.cerrar_popup()
             
-        player_scraper.scrape_players_data()
+        player_scraper.scrape_players_data(team_name)
+
+        # Convert partial data to DataFrame and display every iteration for debugging
+        partial_df = create_dataframe(player_scraper.teams_data)
+        print(f"Data after scraping {team_name}:")
+        print(partial_df.head())  # Adjust head() to view more or fewer rows as neededt
+        # Optional: display after a set number of teams for larger data collections
+        if (i + 1) % 2 == 0:
+            print(f"Data after scraping {i + 1} teams:")
+            print(partial_df)
+            partial_df.to_csv("partial_player_data.csv", index=True)
+    
+    # Convert collected data into a DataFrame
+    players_df = create_dataframe(player_scraper.teams_data)
+    print(players_df)  # Display the DataFrame or save it as needed
+    players_df.to_csv("players_data.csv", index=True)  # Index=True to keep the team and player names as index columns
+
 
     browser_manager.quit()
 

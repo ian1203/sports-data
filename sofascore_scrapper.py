@@ -5,7 +5,7 @@ from selenium.common.exceptions import TimeoutException
 
 class SofaScoreScraper:
     """
-    A class to scrape team and player information from SofaScore.
+    A class to scrape team information from SofaScore.
 
     Attributes:
         driver (webdriver.Chrome): The WebDriver instance to interact with the website.
@@ -48,9 +48,14 @@ class SofaScoreScraper:
             )
             rows = standings_element.find_elements(By.XPATH, ".//a[@data-testid='standings_row']")
             for row in rows:
-                team_name = row.find_element(By.CLASS_NAME, "Text.fsoviT").text
-                team_url = row.get_attribute('href')
-                teams.append({'name': team_name, 'url': team_url})
+                try:
+                    team_name_element = row.find_element(By.XPATH, ".//div[contains(@class, 'Text') and contains(@class, 'fsoviT')]")
+                    team_name = team_name_element.text
+                    team_url = row.get_attribute('href')
+                    teams.append({'name': team_name, 'url': team_url})
+                except TimeoutException:
+                    print("Error: Team name element not found in row.")
+                
         except TimeoutException:
             print("Error: el elemento no estuvo disponible a tiempo")
         return teams
