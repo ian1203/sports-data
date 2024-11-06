@@ -1,7 +1,7 @@
 from browser_manager import BrowserManager
 from popup_handler import PopupHandler
-from sofascore_scrapper import SofaScoreScraper
-from player_scrapper import PlayerScraper
+from sofascore_scraper import SofaScoreScraper
+from player_scraper import PlayerScraper
 from data_manager import create_dataframe
 
 def main():
