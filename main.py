@@ -31,8 +31,6 @@ def main():
     
     teams = sofascore_scraper.get_teams()
 
-    print(teams)
-
     for i, team in enumerate(teams):
         print(f"Scraping players from: {team['name']}")
         team_name = team['name']

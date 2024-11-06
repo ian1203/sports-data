@@ -15,6 +15,9 @@ def clean_stat_value(raw_text, index, is_percentage=False):
     # Extract the specific word based on the index and remove parentheses
     value_str = raw_text.split()[index]
 
+    if value_str.startswith('(') and value_str.endswith(')'):
+        value_str = value_str[1:-1]
+
     return value_str
 
 def create_dataframe(teams_data):
