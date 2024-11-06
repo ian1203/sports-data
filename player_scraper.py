@@ -95,10 +95,22 @@ class PlayerScraper:
             amount_goals_conceded_per_game = clean_stat_value(goals_conceded_per_game, 4)
             print("Amount of goals conceded per game:", amount_goals_conceded_per_game)
 
-            penalties_saved = self.driver.find_element(By.XPATH,
-                                                  "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[2]").text
-            amount_penalties_saved = clean_stat_value(penalties_saved, 2)
-            print("Amount of penalties saved:", amount_penalties_saved)
+            try:
+                penalties_saved = self.driver.find_element(By.XPATH,
+                                                    "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[2]").text
+                amount_penalties_saved_and_faced = clean_stat_value(penalties_saved, 2)
+                if '/' in amount_penalties_saved_and_faced:
+                    penalty_saved, penalties_faced = map(int, amount_penalties_saved_and_faced.split('/'))
+                else:
+                    # If it's a single number, assume it represents penalties faced with 0 penalties saved
+                    penalties_faced = int(amount_penalties_saved_and_faced)
+                    penalty_saved = 0
+                print("Penalties faced:", penalties_faced)
+                print("Penalties saved:", penalty_saved)
+            except Exception as e:
+                print(f"Error retrieving penalties saved data: {e}")
+                penalties_faced = 0
+                penalty_saved = 0
 
             saves_per_game = self.driver.find_element(By.XPATH,
                                                  "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[3]").text
@@ -156,7 +168,8 @@ class PlayerScraper:
             'Games Played': amount_games,
             'Minutes Played': amount_minutes_played,
             'Goals Conceded Per Game': amount_goals_conceded_per_game,
-            'Penalties Saved': amount_penalties_saved,
+            'Penalties Saved': penalty_saved,
+            'Penalties Faced': penalties_faced,
             'Saves Per Game': amount_saves_per_game,
             'Saves Per Game Percentage': amount_saves_per_game_percentage,
             'Goals Conceded': amount_goals_conceded,
@@ -222,12 +235,12 @@ class PlayerScraper:
                     shots_target_per_game = self.driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[6]").text
                     amount_shots_target_per_game = clean_stat_value(shots_target_per_game, 5)
                     print("Amount of shots on target per game:", amount_shots_target_per_game)
-
-                assists = self.driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[6]//div[1]//div[2]//div[1]").text
-                amount_assists = clean_stat_value(assists, 1)
-                print("Amount of assists:", amount_assists)
             except Exception as e:
                 print(f"Error retrieving {player_name}'s xG related data: {e}")
+            
+            assists = self.driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[6]//div[1]//div[2]//div[1]").text
+            amount_assists = clean_stat_value(assists, 1)
+            print("Amount of assists:", amount_assists)
 
             xA = self.driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[6]//div[1]//div[2]//div[2]").text
             amount_xA = clean_stat_value(xA, 3)

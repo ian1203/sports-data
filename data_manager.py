@@ -46,7 +46,7 @@ def create_dataframe(teams_data):
         'Possession Lost Per Game', 'Fouls Received Per Game', 'Offsides Per Game',
         
         # Goalkeeper stats
-        'Goals Conceded Per Game', 'Penalties Saved', 'Saves Per Game', 'Saves Per Game Percentage',
+        'Goals Conceded Per Game', 'Penalties Saved', 'Penalties Faced', 'Saves Per Game', 'Saves Per Game Percentage',
         'Goals Conceded', 'Total Saves', 'Goals Prevented', 'Passes Completed', 
         'Percentage of Passes Completed', 'Clean Sheets', 'Errors leading to shot', 'Errors leading to goal'
     ]
