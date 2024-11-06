@@ -121,7 +121,7 @@ class PlayerScraper:
             print("Amount of total saves:", amount_total_saves)
 
             goals_prevented = self.driver.find_element(By.XPATH,
-                                                  "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[8]").text
+                                                  "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[9]").text
             amount_goals_prevented = clean_stat_value(goals_prevented, 2)
             print("Amount of goals prevented:", amount_goals_prevented)
 
@@ -141,12 +141,12 @@ class PlayerScraper:
             print("Amount of clean sheets:", amount_clean_sheets)
 
             error_leading_to_shot = self.driver.find_element(By.XPATH,
-                                                        "//div[@class='Box kNZKNS']//div[7]//div[1]//div[2]//div[8]").text
+                                                        "//div[@class='Box kNZKNS']//div[8]//div[1]//div[2]//div[8]").text
             amount_error_leading_to_shot = clean_stat_value(error_leading_to_shot, 4)
             print("Amount of erros leading to shot:", amount_error_leading_to_shot)
 
             error_leading_to_goal = self.driver.find_element(By.XPATH,
-                                                        "//div[@class='Box kNZKNS']//div[7]//div[1]//div[2]//div[8]").text
+                                                        "//div[@class='Box kNZKNS']//div[8]//div[1]//div[2]//div[9]").text
             amount_error_leading_to_goal = clean_stat_value(error_leading_to_goal, 4)
             print("Amount of errors leading to goal:", amount_error_leading_to_goal)
 
