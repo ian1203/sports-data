@@ -11,8 +11,7 @@ class PlayerScraper:
     A class to scrape player information from a sports website.
 
     Attributes:
-        driver (webdriver.Chrome): The WebDriver instance to interact with the website.
-        popup_handler (PopupHandler): The popup handler instance to close unwanted popups.
+        teams_data (dict): A dictionary to store scraped team and player data.
     """
 
     def __init__(self, driver, popup_handler):
@@ -26,6 +25,7 @@ class PlayerScraper:
 
         self.driver = driver
         self.popup_handler = popup_handler
+        self.teams_data = {}
 
     def select_competition(self):
         """
@@ -61,7 +61,7 @@ class PlayerScraper:
         except Exception as e:
             print(f"Error selecting competition: {e}")
 
-    def scrape_goalkeeper_data(self, player_link):
+    def scrape_goalkeeper_data(self, player_link, team_name):
         """
         Scrapes data for a goalkeeper from the player's profile page.
 
@@ -149,13 +149,33 @@ class PlayerScraper:
                                                         "//div[@class='Box kNZKNS']//div[7]//div[1]//div[2]//div[8]").text
             amount_error_leading_to_goal = clean_stat_value(error_leading_to_goal, 4)
             print("Amount of errors leading to goal:", amount_error_leading_to_goal)
+
+            if team_name not in self.teams_data:
+                self.teams_data[team_name] = {}
+            self.teams_data[team_name][player_name] = {
+            'Games Played': amount_games,
+            'Minutes Played': amount_minutes_played,
+            'Goals Conceded Per Game': amount_goals_conceded_per_game,
+            'Penalties Saved': amount_penalties_saved,
+            'Saves Per Game': amount_saves_per_game,
+            'Saves Per Game Percentage': amount_saves_per_game_percentage,
+            'Goals Conceded': amount_goals_conceded,
+            'Total Saves': amount_total_saves,
+            'Goals Prevented': amount_goals_prevented,
+            'Passes Completed': amount_passes_completed,
+            'Percentage of Passes Completed': amount_passes_completed_percentage,
+            'Clean Sheets': amount_clean_sheets,
+            'Errors leading to shot': amount_error_leading_to_shot,
+            'Errors leading to goal': amount_error_leading_to_goal
+            }
             
         except TimeoutException:
             print("Error: Element took too long to load.")
         except Exception as e:
             print(f"Error extracting {player_name}'s data: {e}")
+        
 
-    def scrape_field_player_data(self, player_link):
+    def scrape_field_player_data(self, player_link, team_name):
         """
         Scrapes data for a general player from the player's profile page.
 
@@ -185,22 +205,29 @@ class PlayerScraper:
             amount_goals = clean_stat_value(goals, 1)
             print("Amount of goals:", amount_goals)
 
-            xG_element = self.driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[2]").text
-            if "Expected Goals (xG)" in xG_element:
-                amount_xG = clean_stat_value(xG_element, 3)
-                print("Amount of xG:", amount_xG)
+            amount_xG = 0
+            amount_shots_per_game = 0
+            amount_shots_target_per_game = 0
 
-                shots_per_game = self.driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[5]").text
-                amount_shots_per_game = shots_per_game.split()[3]
-                print("Amount of shots per game:", amount_shots_per_game)
+            try:
+                xG_element = self.driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[2]").text
+                if "Expected Goals (xG)" in xG_element:
+                    amount_xG = clean_stat_value(xG_element, 3)
+                    print("Amount of xG:", amount_xG)
 
-                shots_target_per_game = self.driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[6]").text
-                amount_shots_target_per_game = clean_stat_value(shots_target_per_game, 5)
-                print("Amount of shots on target per game:", amount_shots_target_per_game)
+                    shots_per_game = self.driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[5]").text
+                    amount_shots_per_game = shots_per_game.split()[3]
+                    print("Amount of shots per game:", amount_shots_per_game)
 
-            assists = self.driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[6]//div[1]//div[2]//div[1]").text
-            amount_assists = clean_stat_value(assists, 1)
-            print("Amount of assists:", amount_assists)
+                    shots_target_per_game = self.driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[5]//div[1]//div[2]//div[6]").text
+                    amount_shots_target_per_game = clean_stat_value(shots_target_per_game, 5)
+                    print("Amount of shots on target per game:", amount_shots_target_per_game)
+
+                assists = self.driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[6]//div[1]//div[2]//div[1]").text
+                amount_assists = clean_stat_value(assists, 1)
+                print("Amount of assists:", amount_assists)
+            except Exception as e:
+                print(f"Error retrieving {player_name}'s xG related data: {e}")
 
             xA = self.driver.find_element(By.XPATH, "//div[@class='Box kNZKNS']//div[6]//div[1]//div[2]//div[2]").text
             amount_xA = clean_stat_value(xA, 3)
@@ -270,13 +297,41 @@ class PlayerScraper:
                                                     "//div[@class='Box kNZKNS']//div[8]//div[1]//div[2]//div[8]").text
             amount_offside_per_game = clean_stat_value(offside_per_game, 1)
             print("Offsides per game:", amount_offside_per_game)
+        
+            if team_name not in self.teams_data:
+                self.teams_data['Team'] = {}
+            self.teams_data[team_name][player_name] = {
+                'Games Played': amount_games,
+                'Minutes Played': amount_minutes_played,
+                'Goals': amount_goals,
+                'Expected Goals (xG)': amount_xG,
+                'Shots Per Game': amount_shots_per_game,
+                'Shots on Target Per Game': amount_shots_target_per_game,
+                'Assists': amount_assists,
+                'Expected Assists (xA)': amount_xA,
+                'Big Chances Created': amount_big_chances_created,
+                'Key Passes Per Game': amount_key_passes_per_game,
+                'Passes Completed Per Game': amount_passes_completed_per_game,
+                'Pass Completion Percentage': amount_passes_completed_per_game_percentage,
+                'Successful Dribbles Per Game': amount_succesful_dribles,
+                'Total Duels Won Per Game': amount_total_duels_won_per_game,
+                'Total Duels Won Percentage': amount_total_duels_won_percentage,
+                'Ground Duels Won Per Game': amount_ground_duels_won_per_game,
+                'Ground Duels Won Percentage': amount_ground_duels_won_per_game_percentage,
+                'Aerial Duels Won Per Game': amount_aerial_duels_won_per_game,
+                'Aerial Duels Won Percentage': amount_aerial_duels_won_per_game_percentage,
+                'Possession Lost Per Game': amount_possession_lost_per_game,
+                'Fouls Received Per Game': amount_fouls_received_per_game,
+                'Offsides Per Game': amount_offside_per_game
+                }   
 
         except TimeoutException:
             print("Error: Element took too long to load.")
         except Exception as e:
             print(f"Error extracting {player_name}'s data: {e}")
 
-    def scrape_players_data(self):
+
+    def scrape_players_data(self, team_name):
         """
         Scrapes player data from a table on the webpage.
 
@@ -288,6 +343,9 @@ class PlayerScraper:
             TimeoutException: If the table or its rows take too long to load.
             Exception: For any other error that may occur while scraping player data.
         """
+        
+        if team_name not in self.teams_data:
+            self.teams_data[team_name] = {}  # Creates a new dictionary for this team
 
         try:
             table_xpath = "//table[contains(@class, 'fEUhaC')]"
@@ -306,8 +364,8 @@ class PlayerScraper:
 
             for player in players:
                 if player['position'].lower() == "goalkeeper":
-                    self.scrape_goalkeeper_data(player['link'])
+                    self.scrape_goalkeeper_data(player['link'], team_name)
                 else:
-                    self.scrape_field_player_data(player['link'])
+                    self.scrape_field_player_data(player['link'], team_name)
         except Exception as e:
             print(f"Error: {e}")
