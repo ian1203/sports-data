@@ -43,12 +43,14 @@ class SofaScoreScraper:
         try:
             standings_element = WebDriverWait(self.driver, 30).until(
                 EC.presence_of_element_located(
-                    (By.XPATH, '//*[@id="__next"]/main/div/div[3]/div/div[1]/div[1]/div[2]/div/div[1]/div/div[2]')
+                    (By.XPATH, '//*[@id="__next"]/main/div/div[3]/div/div[1]/div[1]/div[2]/div[1]/div/div[1]/div/div[2]')
                 )
             )
+            #//*[@id="__next"]/main/div/div[3]/div/div[1]/div[1]/div[2]/div[1]/div/div[1]/div/div[2]/div/a[1]/div/div[2]
+            #//*[@id="__next"]/main/div/div[3]/div/div[1]/div[1]/div[2]/div[1]/div/div[1]/div/div[2]/div/a[2]/div/div[2]
             rows = standings_element.find_elements(By.XPATH, ".//a[@data-testid='standings_row']")
             for row in rows:
-                team_name = row.find_element(By.CLASS_NAME, "Text.fsoviT").text
+                team_name = row.find_element(By.CLASS_NAME, "Box.ljKzDM").text
                 team_url = row.get_attribute('href')
                 teams.append({'name': team_name, 'url': team_url})
         except TimeoutException:
