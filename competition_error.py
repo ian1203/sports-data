@@ -1,0 +1,2 @@
+class CompetitionNotAvailableException(Exception):
+    pass
