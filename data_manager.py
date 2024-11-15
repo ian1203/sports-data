@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-def clean_stat_value(raw_text, index, is_percentage=False):
+def clean_stat_value(raw_text, index):
     """
     Cleans and converts a statistical value from a text string.
     
@@ -38,12 +38,15 @@ def create_dataframe(teams_data):
         'Games Played', 'Minutes Played',
 
         # Field player stats
-        'Goals', 'Expected Goals (xG)', 'Shots Per Game', 'Shots on Target Per Game',
+        'Goals', 'Expected Goals (xG)','Big Chances Missed' ,'Shots Per Game', 'Shots on Target Per Game',
         'Assists', 'Expected Assists (xA)', 'Big Chances Created', 'Key Passes Per Game',
-        'Passes Completed Per Game', 'Pass Completion Percentage', 'Successful Dribbles Per Game',
-        'Total Duels Won Per Game', 'Total Duels Won Percentage', 'Ground Duels Won Per Game',
-        'Ground Duels Won Percentage', 'Aerial Duels Won Per Game', 'Aerial Duels Won Percentage',
-        'Possession Lost Per Game', 'Fouls Received Per Game', 'Offsides Per Game',
+        'Passes Completed Per Game', 'Pass Completion Percentage','Succesful Passes Opp. Half',
+        'Succesful Passes Opp. Half Percentage', 'Succesful Long Balls', 'Succesful Long Balls Percentage',
+        'Successful Dribbles Per Game', 'Total Duels Won Per Game', 'Total Duels Won Percentage',
+        'Ground Duels Won Per Game', 'Ground Duels Won Percentage', 'Aerial Duels Won Per Game', 
+        'Aerial Duels Won Percentage', 'Interceptions Per Game', 'Tackles Per Game', 'Possession Won Opp. Half',
+        'Balls Recovered Per Game', 'Dribbled Past Per Game', 'Clearances Per Game', 
+        'Possession Lost Per Game','Fouls Committed Per Game' ,'Fouls Received Per Game', 'Offsides Per Game',
         
         # Goalkeeper stats
         'Goals Conceded Per Game', 'Penalties Saved', 'Penalties Faced', 'Saves Per Game', 'Saves Per Game Percentage',
